@@ -14,7 +14,7 @@ class Function:
         return output
 
     def forward(self, x):
-        return NotImplementedError("이 메서드는 반드시 오버라이드해야 합니다.")
+        raise NotImplementedError("이 메서드는 반드시 오버라이드해야 합니다.")
 
 
 class Square(Function):
