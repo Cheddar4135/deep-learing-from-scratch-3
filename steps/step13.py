@@ -4,7 +4,11 @@ import numpy as np
     1. Variable 클래스의 backward 메서드
     2. Function 클래스 상속한 각 함수 클래스 - Square, Exp의 backward 메서드
 테스트
-    z=x^2 + y^2 라는 계산을 z.backward()를 호출해서 미분 계산을 자동으로 처리할 것
+    1. z = x^2 + y^2 라는 계산을 z.backward()를 호출해서 미분 계산을 자동으로 처리할 것
+    2. y = x + x 미분 결과를 출력해볼 것, 어떤 문제점이 발생하는 가?
+참고:
+    편미분 기호는 ∂(델)로 표기한다.
+    예를 들어 함수 f(x, y)에 대해 x로 편미분: ∂f/∂x
 """
 
 def as_array(x):
@@ -105,13 +109,34 @@ def exp(x):
     return Exp()(x)
 
 
-# Test
+# Test : z = x^2 + y^2 (정상출력)
 x = Variable(np.array(2.0))
 y = Variable(np.array(3.0))
 
 z = add(square(x), square(y))
 z.backward()
-print(z.data)
-print(z.grad)
-print(x.grad)
-print(y.grad)
+print(z.data)   #z = x^2 + y^2 = 4 + 9 = 13
+print(z.grad)   #∂z/∂z =1
+print(x.grad)   #∂z/∂x = 2*x = 4
+print(y.grad)   #∂z/∂x = 2*y = 6
+
+# Test : y = x + x (문제발생)
+x = Variable(np.array(2.0))
+y = add(x,x)
+y.backward()
+print(y.data)   #y=x + x = 4
+print(y.grad)   #dy/dy = 1
+print(x.grad)   #dy/dx = 2 but 출력으로는 1이 나온다.
+
+"""왜 이렇게 나올까?
+class Variable:
+    ...
+    def backward(self):
+        ...
+        for x, gx in zip (f.inputs, gxs):
+            x.grad = gx                         #여기가 실수!
+            ..
+현재 구현에서는 출력 쪽에서 전해지는 미분값을 그대로 대입하기 때문이다.
+같은 변수를 반복해서 사용하면 전파되는 미분값이 덮어 써진다.
+전파되는 미분값의 합을 구해야하는데, 지금의 구현에서는 그냥 덮어쓰고 있다.
+"""
