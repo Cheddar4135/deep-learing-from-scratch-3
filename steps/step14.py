@@ -214,3 +214,5 @@ x.cleargrad()  # 미분값 초기화
 y = add(add(x, x), x)  # y = (x + x) + x
 y.backward()
 print(x.grad)  # dy/dx = 3 (정상 출력)
+
+# PR Test
